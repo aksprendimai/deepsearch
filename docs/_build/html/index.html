@@ -1,0 +1,193 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Introduction &mdash; deepsearch 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="deepsearch 0.1 documentation" href="#" />
+    <link rel="next" title="How to use" href="example.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="example.html" title="How to use"
+             accesskey="N">next</a> |</li>
+        <li><a href="#">deepsearch 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="introduction">
+<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+<p><em>deepsearch</em> is a <a class="reference external" href="http://haystacksearch.org">Haystack</a> extension used to
+index deep and nested model relationships. Its key features are:</p>
+<ul class="simple">
+<li><a class="reference internal" href="indexes.html#deepsearch.indexes.DeepSearchIndex" title="deepsearch.indexes.DeepSearchIndex"><tt class="xref py py-class docutils literal"><span class="pre">DeepSearchIndex</span></tt></a> class able to
+index deeply nested related objects and their fields.</li>
+<li><a class="reference internal" href="models.html#deepsearch.models.FieldBoost" title="deepsearch.models.FieldBoost"><tt class="xref py py-class docutils literal"><span class="pre">FieldBoost</span></tt></a> model that stores weights of
+each index field for query-time field boosting.</li>
+<li><a class="reference internal" href="commands.html#resume-index"><em>resume_index</em></a> command able to reindex a slice of all
+objects or only a subset of index fields.</li>
+<li><em>Celery</em> support for real-time indexing.</li>
+</ul>
+<p>For a quick start head to <a class="reference internal" href="example.html"><em>How to use</em></a> section.</p>
+<div class="section" id="reference">
+<h2>Reference<a class="headerlink" href="#reference" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="example.html">How to use</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="example.html#using-deepsearchindex">Using <tt class="docutils literal"><span class="pre">DeepSearchIndex</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="example.html#using-subtreewrapper">Using <tt class="docutils literal"><span class="pre">SubtreeWrapper</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="example.html#more-complex-cases">More complex cases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example.html#views">Views</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="indexes.html">Indexes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="indexes.html#subtree-wrappers">Subtree wrappers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="indexes.html#other">Other</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="models.html">Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="commands.html">Management Commands</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="commands.html#init-boosts"><tt class="docutils literal"><span class="pre">init_boosts</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="commands.html#resume-index"><tt class="docutils literal"><span class="pre">resume_index</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="commands.html#clear-index-relations"><tt class="docutils literal"><span class="pre">clear_index_relations</span></tt></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="signals.html">Real-time indexing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="signals.html#tasks">Tasks</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="installation">
+<span id="id1"></span><h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>Requirements:</p>
+<ul class="simple">
+<li>Python &gt;= 2.6</li>
+<li>Django &gt;= 1.4</li>
+<li>django-haystack &gt;= 2.1.0</li>
+<li>South.&gt;= 0.8.1</li>
+<li>celery&gt;=3.1 <cite>(optional)</cite></li>
+</ul>
+<p>Recommended:</p>
+<ul class="simple">
+<li><a class="reference external" href="https://github.com/kezabelle/django-haystackbrowser">haystackbrowser</a>
+<cite>(to inspect indexed data)</cite></li>
+</ul>
+<p>Setup:</p>
+<ol class="arabic">
+<li><p class="first">Include <tt class="docutils literal"><span class="pre">'deepsearch'</span></tt> in your <tt class="docutils literal"><span class="pre">INSTALLED_APPS</span></tt>.</p>
+</li>
+<li><p class="first">Configure <tt class="docutils literal"><span class="pre">HAYSTACK_CONNECTIONS</span></tt>.</p>
+</li>
+<li><p class="first">To enable real-time indexing add the following line to <tt class="docutils literal"><span class="pre">settings.py</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">HAYSTACK_SIGNAL_PROCESSOR</span> <span class="o">=</span> <span class="s">&#39;deepsearch.signals.DeepSearchSignalProcessor&#39;</span>
+</pre></div>
+</div>
+<p>See also: <a class="reference internal" href="signals.html"><em>Real-time indexing</em></a>.</p>
+</li>
+<li><p class="first">Create <tt class="docutils literal"><span class="pre">search_indexes.py</span></tt> in your app directory.
+See also: <a class="reference internal" href="example.html"><em>How to use</em></a>.</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">python</span> <span class="pre">manage.py</span> <span class="pre">init_boosts</span></tt> to update index field weight values. You
+should run this whenever you modify index schema. See also: <a class="reference internal" href="commands.html"><em>Management Commands</em></a>.</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">python</span> <span class="pre">manage.py</span> <span class="pre">rebuild_index</span></tt> will update index and
+<a class="reference internal" href="models.html#deepsearch.models.IndexRelation" title="deepsearch.models.IndexRelation"><tt class="xref py py-class docutils literal"><span class="pre">IndexRelation</span></tt></a> table.</p>
+</li>
+</ol>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Introduction</a><ul>
+<li><a class="reference internal" href="#reference">Reference</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#installation">Installation</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Next topic</h4>
+  <p class="topless"><a href="example.html"
+                        title="next chapter">How to use</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="example.html" title="How to use"
+             >next</a> |</li>
+        <li><a href="#">deepsearch 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Atviro Kodo Sprendimai.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,503 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>How to use &mdash; deepsearch 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="deepsearch 0.1 documentation" href="index.html" />
+    <link rel="next" title="Indexes" href="indexes.html" />
+    <link rel="prev" title="Introduction" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="indexes.html" title="Indexes"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Introduction"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">deepsearch 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="how-to-use">
+<h1>How to use<a class="headerlink" href="#how-to-use" title="Permalink to this headline">¶</a></h1>
+<div class="admonition-see-also admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="index.html#installation"><em>Installation</em></a></p>
+</div>
+<p>We&#8217;ll demonstrate how <tt class="xref py py-class docutils literal"><span class="pre">DeepSearchIndex</span></tt>
+can be used to index a multi-level hierarchical data structures.
+For simplicity and clarity, we&#8217;ll use a few simple models:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">Person</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__unicode__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+
+<span class="k">class</span> <span class="nc">Actor</span><span class="p">(</span><span class="n">Person</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+<span class="k">class</span> <span class="nc">Director</span><span class="p">(</span><span class="n">Person</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+<span class="k">class</span> <span class="nc">Genre</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="s">&#39;self&#39;</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+    <span class="n">definition</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__unicode__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+
+<span class="k">class</span> <span class="nc">Movie</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+    <span class="n">genres</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span><span class="n">Genre</span><span class="p">)</span>
+    <span class="n">directors</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span><span class="n">Director</span><span class="p">)</span>
+    <span class="n">actors</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span><span class="n">Actor</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__unicode__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span>
+</pre></div>
+</div>
+<p>An <tt class="docutils literal"><span class="pre">Actor</span></tt> or <tt class="docutils literal"><span class="pre">Director</span></tt> is a <tt class="docutils literal"><span class="pre">Person</span></tt>, but there may exist a <tt class="docutils literal"><span class="pre">Person</span></tt>
+who is neither of which. Here you could use
+<tt class="xref py py-class docutils literal"><span class="pre">LimitedContentTypeIndexMixin</span></tt> to index
+<tt class="docutils literal"><span class="pre">Person</span></tt> objects.</p>
+<p>The <tt class="docutils literal"><span class="pre">parent</span></tt> field of the model <tt class="docutils literal"><span class="pre">Genre</span></tt> makes it a tree-like structure.
+So a <tt class="docutils literal"><span class="pre">Genre</span></tt> may have its <em>supergenre</em>, e.g. <em>Slasher</em> is a subgenre of
+<em>Horror</em>.</p>
+<p>Next populate the database with some data:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">Actor</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">u&#39;Mark Hamill&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+<span class="n">Actor</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">u&#39;Harrison Ford&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+<span class="n">Director</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">u&#39;George Lucas&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+<span class="n">Genre</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">u&#39;Speculative fiction&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+<span class="n">Genre</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s">u&#39;Sci-Fi&#39;</span><span class="p">,</span>
+    <span class="n">definition</span><span class="o">=</span><span class="s">u&#39;Science Fiction&#39;</span><span class="p">,</span>
+    <span class="n">parent</span><span class="o">=</span><span class="n">Genre</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">u&#39;Speculative fiction&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+<span class="n">Genre</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s">u&#39;Space Opera&#39;</span><span class="p">,</span>
+    <span class="n">definition</span><span class="o">=</span><span class="s">u&#39;A play on the term &quot;soap opera&quot;&#39;</span><span class="p">,</span>
+    <span class="n">parent</span><span class="o">=</span><span class="n">Genre</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">u&#39;Sci-Fi&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+<span class="n">star_wars</span> <span class="o">=</span> <span class="n">Movie</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s">u&#39;Star Wars&#39;</span><span class="p">)</span>
+<span class="n">star_wars</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+<span class="n">star_wars</span><span class="o">.</span><span class="n">genres</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Genre</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">u&#39;Space Opera&#39;</span><span class="p">))</span>
+<span class="n">star_wars</span><span class="o">.</span><span class="n">directors</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Director</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">u&#39;George Lucas&#39;</span><span class="p">))</span>
+<span class="n">star_wars</span><span class="o">.</span><span class="n">actors</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Actor</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">u&#39;Mark Hamill&#39;</span><span class="p">))</span>
+<span class="n">star_wars</span><span class="o">.</span><span class="n">actors</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Actor</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">u&#39;Harrison Ford&#39;</span><span class="p">))</span>
+<span class="n">star_wars</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="section" id="using-deepsearchindex">
+<h2>Using <tt class="docutils literal"><span class="pre">DeepSearchIndex</span></tt><a class="headerlink" href="#using-deepsearchindex" title="Permalink to this headline">¶</a></h2>
+<p>We will start with a bare <tt class="xref py py-class docutils literal"><span class="pre">DeepSearchIndex</span></tt>
+for the <tt class="docutils literal"><span class="pre">Movie</span></tt> model:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">haystack.indexes</span> <span class="kn">import</span> <span class="n">Indexable</span>
+<span class="kn">from</span> <span class="nn">deepsearch.indexes</span> <span class="kn">import</span> <span class="n">DeepSearchIndex</span>
+<span class="kn">from</span> <span class="nn">example.models</span> <span class="kn">import</span> <span class="n">Movie</span>
+
+<span class="k">class</span> <span class="nc">MovieIndex</span><span class="p">(</span><span class="n">DeepSearchIndex</span><span class="p">,</span> <span class="n">Indexable</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Movie</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Index class definitions go to <tt class="docutils literal"><span class="pre">search_indexes.py</span></tt> file in your app
+directory (along with <tt class="docutils literal"><span class="pre">models.py</span></tt>, <tt class="docutils literal"><span class="pre">views.py</span></tt>, etc). Keep in mind
+that they must also inherit from <tt class="docutils literal"><span class="pre">haystack.indexes.Indexable</span></tt>.
+Otherwise <em>Haystack</em> will ignore them.</p>
+</div>
+<p>After rebuilding index, you can inspect indexed data using an app such as
+<a class="reference external" href="https://github.com/kezabelle/django-haystackbrowser">haystackbrowser</a>.
+Here is the data indexed for the <em>Star Wars</em> movie object:</p>
+<div class="highlight-none"><div class="highlight"><pre>example__movie__actors [&#39;Harrison Ford&#39;, &#39;Mark Hamill&#39;]
+example__movie__directors [&#39;George Lucas&#39;]
+example__movie__genres [&#39;Space Opera&#39;]
+example__movie__title [&#39;Star Wars&#39;]
+</pre></div>
+</div>
+<p>You can see that the index collects unique unicode representations (returned
+by <tt class="docutils literal"><span class="pre">__unicode__</span></tt> method) of related objects on the first level. However, you
+can also go deeper and include related models&#8217; field values by defining the
+<tt class="docutils literal"><span class="pre">includes</span></tt> option of the index class:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">MovieIndex</span><span class="p">(</span><span class="n">DeepSearchIndex</span><span class="p">,</span> <span class="n">Indexable</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Movie</span>
+        <span class="n">includes</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;genres&#39;</span><span class="p">:</span> <span class="p">{},</span>
+            <span class="s">&#39;directors&#39;</span><span class="p">:</span> <span class="p">{},</span>
+            <span class="s">&#39;actors&#39;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="p">}</span>
+</pre></div>
+</div>
+<p>After rebuilding index, we have:</p>
+<div class="highlight-none"><div class="highlight"><pre> example__movie__actors [&#39;Harrison Ford&#39;, &#39;Mark Hamill&#39;]
+<span class="hll"> example__movie__actors__name [&#39;Harrison Ford&#39;, &#39;Mark Hamill&#39;]
+</span> example__movie__directors [&#39;George Lucas&#39;]
+<span class="hll"> example__movie__directors__name [&#39;George Lucas&#39;]
+</span> example__movie__genres [&#39;Space Opera&#39;]
+<span class="hll"> example__movie__genres__definition [&#39;A play on the term &quot;soap opera&quot;&#39;]
+</span><span class="hll"> example__movie__genres__name [&#39;Space Opera&#39;]
+</span><span class="hll"> example__movie__genres__parent [&#39;Sci-Fi&#39;]
+</span> example__movie__title [&#39;Star Wars&#39;]
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">MovieIndex</span></tt> now includes fields of related models. For example, the
+<tt class="docutils literal"><span class="pre">definition</span></tt>, <tt class="docutils literal"><span class="pre">name</span></tt> and <tt class="docutils literal"><span class="pre">parent</span></tt> fields of model <tt class="docutils literal"><span class="pre">Genre</span></tt>.</p>
+</div>
+<div class="section" id="using-subtreewrapper">
+<h2>Using <tt class="docutils literal"><span class="pre">SubtreeWrapper</span></tt><a class="headerlink" href="#using-subtreewrapper" title="Permalink to this headline">¶</a></h2>
+<p>Next, we can modify the index to include all of the parent <tt class="docutils literal"><span class="pre">Genres</span></tt>. To do
+this use a <tt class="xref py py-class docutils literal"><span class="pre">SubtreeWrapper</span></tt> class, in this
+case <tt class="xref py py-class docutils literal"><span class="pre">Recursive</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">deepsearch.indexes</span> <span class="kn">import</span> <span class="n">DeepSearchIndex</span><span class="p">,</span> <span class="n">Recursive</span>
+
+<span class="k">class</span> <span class="nc">MovieIndex</span><span class="p">(</span><span class="n">DeepSearchIndex</span><span class="p">,</span> <span class="n">Indexable</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Movie</span>
+        <span class="n">includes</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;genres&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s">&#39;parent&#39;</span><span class="p">:</span> <span class="n">Recursive</span><span class="p">({},</span> <span class="n">on</span><span class="o">=</span><span class="s">&#39;parent&#39;</span><span class="p">),</span>
+            <span class="p">},</span>
+            <span class="s">&#39;directors&#39;</span><span class="p">:</span> <span class="p">{},</span>
+            <span class="s">&#39;actors&#39;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="p">}</span>
+</pre></div>
+</div>
+<p>After rebuilding index, we have:</p>
+<div class="highlight-none"><div class="highlight"><pre> example__movie__actors [&#39;Harrison Ford&#39;, &#39;Mark Hamill&#39;]
+ example__movie__actors__name [&#39;Harrison Ford&#39;, &#39;Mark Hamill&#39;]
+ example__movie__directors [&#39;George Lucas&#39;]
+ example__movie__directors__name [&#39;George Lucas&#39;]
+ example__movie__genres [&#39;Space Opera&#39;]
+ example__movie__genres__definition [&#39;A play on the term &quot;soap opera&quot;&#39;]
+ example__movie__genres__name [&#39;Space Opera&#39;]
+<span class="hll"> example__movie__genres__parent [&#39;Sci-Fi&#39;, &#39;Speculative fiction&#39;]
+</span> example__movie__title [&#39;Star Wars&#39;]
+</pre></div>
+</div>
+<p>You can see that the index field <tt class="docutils literal"><span class="pre">example__movie__genres__parent</span></tt> now
+contains <tt class="docutils literal"><span class="pre">'Speculative</span> <span class="pre">fiction'</span></tt> which is the parent of <tt class="docutils literal"><span class="pre">'Sci-Fi'</span></tt> (which
+is the parent of <tt class="docutils literal"><span class="pre">'Space</span> <span class="pre">Opera'</span></tt>).</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><tt class="docutils literal"><span class="pre">Recursive</span></tt> usage is very limited. It only applies on the last
+level of attribute path and collects unicode values only.</p>
+</div>
+<p>We can combine this with <tt class="xref py py-class docutils literal"><span class="pre">Unicode</span></tt>
+wrapper to reduce redundant information about genres:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">deepsearch.indexes</span> <span class="kn">import</span> <span class="n">DeepSearchIndex</span><span class="p">,</span> <span class="n">Recursive</span><span class="p">,</span> <span class="n">Unicode</span>
+
+<span class="k">class</span> <span class="nc">MovieIndex</span><span class="p">(</span><span class="n">DeepSearchIndex</span><span class="p">,</span> <span class="n">Indexable</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Movie</span>
+        <span class="n">includes</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;genres&#39;</span><span class="p">:</span> <span class="n">Unicode</span><span class="p">({</span>
+                <span class="s">&#39;parent&#39;</span><span class="p">:</span> <span class="n">Recursive</span><span class="p">({},</span> <span class="n">on</span><span class="o">=</span><span class="s">&#39;parent&#39;</span><span class="p">),</span>
+            <span class="p">}),</span>
+            <span class="s">&#39;directors&#39;</span><span class="p">:</span> <span class="p">{},</span>
+            <span class="s">&#39;actors&#39;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="p">}</span>
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>example__movie__actors [&#39;Harrison Ford&#39;, &#39;Mark Hamill&#39;]
+example__movie__actors__name [&#39;Harrison Ford&#39;, &#39;Mark Hamill&#39;]
+example__movie__directors [&#39;George Lucas&#39;]
+example__movie__directors__name [&#39;George Lucas&#39;]
+<span class="hll">example__movie__genres [&#39;Space Opera&#39;]
+</span><span class="hll">example__movie__genres__parent [&#39;Sci-Fi&#39;, &#39;Speculative fiction&#39;]
+</span>example__movie__title [&#39;Star Wars&#39;]
+</pre></div>
+</div>
+<p>Or collect all genres into one field:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">MovieIndex</span><span class="p">(</span><span class="n">DeepSearchIndex</span><span class="p">,</span> <span class="n">Indexable</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Movie</span>
+        <span class="n">includes</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;genres&#39;</span><span class="p">:</span> <span class="n">Recursive</span><span class="p">({},</span> <span class="n">on</span><span class="o">=</span><span class="s">&#39;parent&#39;</span><span class="p">),</span>
+            <span class="s">&#39;directors&#39;</span><span class="p">:</span> <span class="p">{},</span>
+            <span class="s">&#39;actors&#39;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="p">}</span>
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>example__movie__actors [&#39;Harrison Ford&#39;, &#39;Mark Hamill&#39;]
+example__movie__actors__name [&#39;Harrison Ford&#39;, &#39;Mark Hamill&#39;]
+example__movie__directors [&#39;George Lucas&#39;]
+example__movie__directors__name [&#39;George Lucas&#39;]
+<span class="hll">example__movie__genres [&#39;Space Opera&#39;, &#39;Sci-Fi&#39;, &#39;Speculative fiction&#39;]
+</span>example__movie__title [&#39;Star Wars&#39;]
+</pre></div>
+</div>
+</div>
+<div class="section" id="more-complex-cases">
+<h2>More complex cases<a class="headerlink" href="#more-complex-cases" title="Permalink to this headline">¶</a></h2>
+<p>You can use <tt class="xref py py-class docutils literal"><span class="pre">DeepSearchIndex</span></tt> to follow more
+complex and deeply nested structures. When defining <tt class="docutils literal"><span class="pre">includes</span></tt> tree, keep in
+mind that the node names (keys of dicts) are essentially attribute names of
+model instances.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Having a large <tt class="docutils literal"><span class="pre">includes</span></tt> tree may lead to <strong>extremely</strong> long
+indexing times. See also <a class="reference internal" href="commands.html#resume-index"><em>resume_index</em></a> command.</p>
+</div>
+<p>First, let&#8217;s create another movie object:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">blade_runner</span> <span class="o">=</span> <span class="n">Movie</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s">u&#39;Blade Runner&#39;</span><span class="p">)</span>
+<span class="n">blade_runner</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+<span class="n">blade_runner</span><span class="o">.</span><span class="n">genres</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Genre</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">u&#39;Sci-Fi&#39;</span><span class="p">))</span>
+<span class="n">blade_runner</span><span class="o">.</span><span class="n">actors</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Actor</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;Harrison Ford&#39;</span><span class="p">))</span>
+<span class="n">blade_runner</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Now (even though it is not really meaningful) let&#8217;s modify <tt class="docutils literal"><span class="pre">MovieIndex</span></tt> so
+that it includes data about other movies in which actors have appeared in:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">MovieIndex</span><span class="p">(</span><span class="n">DeepSearchIndex</span><span class="p">,</span> <span class="n">Indexable</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Movie</span>
+        <span class="n">includes</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;genres&#39;</span><span class="p">:</span> <span class="n">Recursive</span><span class="p">({},</span> <span class="n">on</span><span class="o">=</span><span class="s">&#39;parent&#39;</span><span class="p">),</span>
+            <span class="s">&#39;directors&#39;</span><span class="p">:</span> <span class="p">{},</span>
+            <span class="s">&#39;actors&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s">&#39;movie_set&#39;</span><span class="p">:</span> <span class="p">{},</span>
+            <span class="p">},</span>
+        <span class="p">}</span>
+</pre></div>
+</div>
+<p>Note that <tt class="docutils literal"><span class="pre">movie_set</span></tt> is a backwards relationship manager created by
+<em>Django</em>.</p>
+<p>After rebuilding index, inspect stored data for the movie <em>Star Wars</em>:</p>
+<div class="highlight-none"><div class="highlight"><pre>example__movie__actors [&#39;Harrison Ford&#39;, &#39;Mark Hamill&#39;]
+<span class="hll">example__movie__actors__movie_set__actors [&#39;Harrison Ford&#39;, &#39;Mark Hamill&#39;]
+</span><span class="hll">example__movie__actors__movie_set__directors [&#39;George Lucas&#39;]
+</span><span class="hll">example__movie__actors__movie_set__genres [&#39;Space Opera&#39;, &#39;Sci-Fi&#39;]
+</span><span class="hll">example__movie__actors__movie_set__title [&#39;Star Wars&#39;, &#39;Blade Runner&#39;]
+</span>example__movie__actors__name [&#39;Harrison Ford&#39;, &#39;Mark Hamill&#39;]
+example__movie__directors [&#39;George Lucas&#39;]
+example__movie__directors__name [&#39;George Lucas&#39;]
+example__movie__genres [&#39;Space Opera&#39;, &#39;Sci-Fi&#39;, &#39;Speculative fiction&#39;]
+example__movie__title [&#39;Star Wars&#39;]
+</pre></div>
+</div>
+<p>You can see that the <tt class="docutils literal"><span class="pre">MovieIndex</span></tt> now has a set of index fields that start
+with &#8220;<tt class="docutils literal"><span class="pre">example__movie__actors__movie_set...</span></tt>&#8221;. This means that when you search
+for <em>Blade Runner</em>, <em>Star Wars</em> will also appear in the search results because
+Harrison Ford plays in both of those two movies.</p>
+<p>However, some information may be redundant. Let&#8217;s mark <tt class="docutils literal"><span class="pre">movie_set</span></tt> with
+<tt class="docutils literal"><span class="pre">Unicode</span></tt> wrapper:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">MovieIndex</span><span class="p">(</span><span class="n">DeepSearchIndex</span><span class="p">,</span> <span class="n">Indexable</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Movie</span>
+        <span class="n">includes</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;genres&#39;</span><span class="p">:</span> <span class="n">Recursive</span><span class="p">({},</span> <span class="n">on</span><span class="o">=</span><span class="s">&#39;parent&#39;</span><span class="p">),</span>
+            <span class="s">&#39;directors&#39;</span><span class="p">:</span> <span class="p">{},</span>
+            <span class="s">&#39;actors&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s">&#39;movie_set&#39;</span><span class="p">:</span> <span class="n">Unicode</span><span class="p">({}),</span>
+            <span class="p">},</span>
+        <span class="p">}</span>
+</pre></div>
+</div>
+<p>This results in fewer index fields:</p>
+<div class="highlight-none"><div class="highlight"><pre> example__movie__actors [&#39;Harrison Ford&#39;, &#39;Mark Hamill&#39;]
+<span class="hll"> example__movie__actors__movie_set [&#39;Star Wars&#39;, &#39;Blade Runner&#39;]
+</span> example__movie__actors__name [&#39;Harrison Ford&#39;, &#39;Mark Hamill&#39;]
+ example__movie__directors [&#39;George Lucas&#39;]
+ example__movie__directors__name [&#39;George Lucas&#39;]
+ example__movie__genres [&#39;Space Opera&#39;, &#39;Sci-Fi&#39;, &#39;Speculative fiction&#39;]
+ example__movie__title [&#39;Star Wars&#39;]
+</pre></div>
+</div>
+<p>Here we have only one <tt class="docutils literal"><span class="pre">example__movie__actors__movie_set</span></tt> field which stores
+unicode representations of all movies that are related through actors.</p>
+<p>As <tt class="docutils literal"><span class="pre">actors</span></tt>, <tt class="docutils literal"><span class="pre">directors</span></tt> are explicit many-to-many fields of the model
+<tt class="docutils literal"><span class="pre">Movie</span></tt>, they are included in the index by default (see first example). At
+this point we have overridden <tt class="docutils literal"><span class="pre">genres</span></tt> behavior, but fields <tt class="docutils literal"><span class="pre">actors</span></tt> and
+<tt class="docutils literal"><span class="pre">directors</span></tt> are redundant. So let&#8217;s exclude them:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">MovieIndex</span><span class="p">(</span><span class="n">DeepSearchIndex</span><span class="p">,</span> <span class="n">Indexable</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Movie</span>
+        <span class="n">includes</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;genres&#39;</span><span class="p">:</span> <span class="n">Recursive</span><span class="p">({},</span> <span class="n">on</span><span class="o">=</span><span class="s">&#39;parent&#39;</span><span class="p">),</span>
+            <span class="s">&#39;directors&#39;</span><span class="p">:</span> <span class="p">{},</span>
+            <span class="s">&#39;actors&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s">&#39;movie_set&#39;</span><span class="p">:</span> <span class="n">Unicode</span><span class="p">({}),</span>
+            <span class="p">},</span>
+        <span class="p">}</span>
+        <span class="n">excludes</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;directors&#39;</span><span class="p">,</span> <span class="s">&#39;actors&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>example__movie__actors__movie_set [&#39;Star Wars&#39;, &#39;Blade Runner&#39;]
+example__movie__actors__name [&#39;Harrison Ford&#39;, &#39;Mark Hamill&#39;]
+example__movie__directors__name [&#39;George Lucas&#39;]
+example__movie__genres [&#39;Space Opera&#39;, &#39;Sci-Fi&#39;, &#39;Speculative fiction&#39;]
+example__movie__title [&#39;Star Wars&#39;]
+</pre></div>
+</div>
+</div>
+<div class="section" id="views">
+<h2>Views<a class="headerlink" href="#views" title="Permalink to this headline">¶</a></h2>
+<p>Setting up <em>Django</em> views works the usual way as with <em>Haystack</em>. However
+<em>deepsearch</em> comes with a custom search form which allows query-time
+field boosting. <strong>It works only with Solr backend and uses DisMax mode.</strong></p>
+<p>How to get started:</p>
+<ol class="arabic">
+<li><p class="first">Add the following code to your urls:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">haystack.views</span> <span class="kn">import</span> <span class="n">SearchView</span>
+<span class="kn">from</span> <span class="nn">deepsearch.forms</span> <span class="kn">import</span> <span class="n">DeepSearchForm</span>
+
+<span class="c"># add this to urlpatterns:</span>
+<span class="n">url</span><span class="p">(</span><span class="s">r&#39;^search/&#39;</span><span class="p">,</span> <span class="n">SearchView</span><span class="p">(</span><span class="n">form_class</span><span class="o">=</span><span class="n">DeepSearchForm</span><span class="p">))</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Create <tt class="docutils literal"><span class="pre">search/search.html</span></tt> template:</p>
+<div class="highlight-html"><div class="highlight"><pre><span class="nt">&lt;h2&gt;</span>Search<span class="nt">&lt;/h2&gt;</span>
+
+<span class="nt">&lt;form</span> <span class="na">method=</span><span class="s">&quot;get&quot;</span> <span class="na">action=</span><span class="s">&quot;.&quot;</span><span class="nt">&gt;</span>
+   <span class="nt">&lt;table&gt;</span>
+       {{ form.as_table }}
+       <span class="nt">&lt;tr&gt;</span>
+           <span class="nt">&lt;td&gt;</span><span class="ni">&amp;nbsp;</span><span class="nt">&lt;/td&gt;</span>
+           <span class="nt">&lt;td&gt;</span>
+               <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;submit&quot;</span> <span class="na">value=</span><span class="s">&quot;Search&quot;</span><span class="nt">&gt;</span>
+           <span class="nt">&lt;/td&gt;</span>
+       <span class="nt">&lt;/tr&gt;</span>
+   <span class="nt">&lt;/table&gt;</span>
+
+   {% if query %}
+       <span class="nt">&lt;h3&gt;</span>Results<span class="nt">&lt;/h3&gt;</span>
+
+       {% for result in page.object_list %}
+           <span class="nt">&lt;p&gt;</span>
+               <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;{{ result.object.get_absolute_url }}&quot;</span><span class="nt">&gt;</span>{{ result.object.title }}<span class="nt">&lt;/a&gt;</span>
+           <span class="nt">&lt;/p&gt;</span>
+       {% empty %}
+           <span class="nt">&lt;p&gt;</span>No results found.<span class="nt">&lt;/p&gt;</span>
+       {% endfor %}
+
+       {% if page.has_previous or page.has_next %}
+           <span class="nt">&lt;div&gt;</span>
+               {% if page.has_previous %}<span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;?q={{ query }}&amp;amp;page={{ page.previous_page_number }}&quot;</span><span class="nt">&gt;</span>{% endif %}<span class="ni">&amp;laquo;</span> Previous{% if page.has_previous %}<span class="nt">&lt;/a&gt;</span>{% endif %}
+               |
+               {% if page.has_next %}<span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;?q={{ query }}&amp;amp;page={{ page.next_page_number }}&quot;</span><span class="nt">&gt;</span>{% endif %}Next <span class="ni">&amp;raquo;</span>{% if page.has_next %}<span class="nt">&lt;/a&gt;</span>{% endif %}
+           <span class="nt">&lt;/div&gt;</span>
+       {% endif %}
+   {% else %}
+       {# Show some example queries to run, maybe query syntax, something else? #}
+   {% endif %}
+<span class="nt">&lt;/form&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Your search page should now be accessible. From here you can change the
+template or write you own custom <tt class="docutils literal"><span class="pre">SearchView</span></tt>.</p>
+</li>
+<li><p class="first">You can visit <tt class="docutils literal"><span class="pre">/admin/deepsearch/fieldboost/</span></tt> to change field
+weight values. As they are stored in the database, you do not need to
+restart the server nor rebuild the index for the new weights to be applied.</p>
+</li>
+</ol>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">How to use</a><ul>
+<li><a class="reference internal" href="#using-deepsearchindex">Using <tt class="docutils literal"><span class="pre">DeepSearchIndex</span></tt></a></li>
+<li><a class="reference internal" href="#using-subtreewrapper">Using <tt class="docutils literal"><span class="pre">SubtreeWrapper</span></tt></a></li>
+<li><a class="reference internal" href="#more-complex-cases">More complex cases</a></li>
+<li><a class="reference internal" href="#views">Views</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Introduction</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="indexes.html"
+                        title="next chapter">Indexes</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/example.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="indexes.html" title="Indexes"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Introduction"
+             >previous</a> |</li>
+        <li><a href="index.html">deepsearch 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Atviro Kodo Sprendimai.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

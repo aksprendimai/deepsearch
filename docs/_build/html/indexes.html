@@ -1,0 +1,298 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Indexes &mdash; deepsearch 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="deepsearch 0.1 documentation" href="index.html" />
+    <link rel="next" title="Models" href="models.html" />
+    <link rel="prev" title="How to use" href="example.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="models.html" title="Models"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="example.html" title="How to use"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">deepsearch 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="indexes">
+<h1>Indexes<a class="headerlink" href="#indexes" title="Permalink to this headline">¶</a></h1>
+<p>The following classes extend from <tt class="docutils literal"><span class="pre">haystack.indexes.ModelSearchIndex</span></tt>.</p>
+<dl class="class">
+<dt id="deepsearch.indexes.FieldsSearchIndex">
+<em class="property">class </em><tt class="descclassname">deepsearch.indexes.</tt><tt class="descname">FieldsSearchIndex</tt><a class="headerlink" href="#deepsearch.indexes.FieldsSearchIndex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">haystack.indexes.ModelSearchIndex</span></tt></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="deepsearch.indexes.InheritedFieldsSearchIndex">
+<em class="property">class </em><tt class="descclassname">deepsearch.indexes.</tt><tt class="descname">InheritedFieldsSearchIndex</tt><a class="headerlink" href="#deepsearch.indexes.InheritedFieldsSearchIndex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#deepsearch.indexes.FieldsSearchIndex" title="deepsearch.indexes.FieldsSearchIndex"><tt class="xref py py-class docutils literal"><span class="pre">deepsearch.indexes.FieldsSearchIndex</span></tt></a></p>
+<p>Same as <tt class="docutils literal"><span class="pre">FieldsSearchIndex</span></tt> but also includes fields of base models
+(from <tt class="docutils literal"><span class="pre">model._meta.get_parent_list()</span></tt>).</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="deepsearch.indexes.RelatedSearchIndex">
+<em class="property">class </em><tt class="descclassname">deepsearch.indexes.</tt><tt class="descname">RelatedSearchIndex</tt><a class="headerlink" href="#deepsearch.indexes.RelatedSearchIndex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">haystack.indexes.ModelSearchIndex</span></tt></p>
+<p>Indexes a model including its related models (forwards and backwards
+through foreign keys). By default it collects the unicode representations
+of all related instances.</p>
+<p>The design is as follows:</p>
+<ol class="arabic simple">
+<li>You may mark a node in the includes dict with a <tt class="docutils literal"><span class="pre">SubtreeWrapper</span></tt>
+instance.</li>
+<li><tt class="docutils literal"><span class="pre">SubtreeWrapper</span></tt> wraps a dict (a branch of the includes dict-tree) and
+additionally knows what accessor class to create (<tt class="docutils literal"><span class="pre">ImplicitAccessor</span></tt>
+by default).</li>
+<li>When <tt class="docutils literal"><span class="pre">RelatedSearchIndex.get_fields</span></tt> is executed (during its
+<tt class="docutils literal"><span class="pre">__init__</span></tt>), for each <tt class="docutils literal"><span class="pre">SubtreeWrapper</span></tt> <tt class="docutils literal"><span class="pre">create_accessor</span></tt> method
+is called (if a wrapper is not used, <tt class="docutils literal"><span class="pre">ImplicitAccessor</span></tt> is created).</li>
+<li>Accessors hold information required to create <tt class="docutils literal"><span class="pre">AccessorField</span></tt>
+instances (specifically, the model being indexed and accessor path to
+the value; the path may lead to a model or a field; in any case
+<tt class="docutils literal"><span class="pre">AccessorField</span></tt> prepares the unicode representation of the Python
+object at the end of the path). Fields created by <tt class="docutils literal"><span class="pre">create_fields</span></tt>
+call on an accessor are collected and included in the index.</li>
+</ol>
+<dl class="docutils">
+<dt>Additional <tt class="docutils literal"><span class="pre">Meta</span></tt> options:</dt>
+<dd><dl class="first last docutils">
+<dt><tt class="docutils literal"><span class="pre">model</span></tt></dt>
+<dd>the indexable model (required)</dd>
+<dt><tt class="docutils literal"><span class="pre">fields</span></tt></dt>
+<dd>a list of model attributes to be indexed</dd>
+<dt><tt class="docutils literal"><span class="pre">includes</span></tt></dt>
+<dd>a nested dict that specifies multi-level relations that
+should also be included in the index. The value of each dict
+item must also be a dict or a SubtreeWrapper instance.</dd>
+<dt><tt class="docutils literal"><span class="pre">includes_only</span></tt></dt>
+<dd>index only model fields and includes (default False)</dd>
+<dt><tt class="docutils literal"><span class="pre">excludes</span></tt></dt>
+<dd>a list of model attributes to be excluded (backwards
+relation attributes may also be specified here)</dd>
+<dt><tt class="docutils literal"><span class="pre">global_excludes</span></tt></dt>
+<dd>a list of model attributes to be excluded for
+every (non-root) node in the includes tree</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="deepsearch.indexes.RelatedSearchIndex.retain_fields">
+<tt class="descname">retain_fields</tt><big>(</big><em>prefixes</em><big>)</big><a class="headerlink" href="#deepsearch.indexes.RelatedSearchIndex.retain_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modifies the index in place. Keeps only those index fields that
+start with any of the specified prefixes (a list of strings).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>prefixes</strong> (<em>tuple or list</em>) &#8211; a list of strings</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="deepsearch.indexes.DeepSearchIndex">
+<em class="property">class </em><tt class="descclassname">deepsearch.indexes.</tt><tt class="descname">DeepSearchIndex</tt><a class="headerlink" href="#deepsearch.indexes.DeepSearchIndex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#deepsearch.indexes.RelatedSearchIndex" title="deepsearch.indexes.RelatedSearchIndex"><tt class="xref py py-class docutils literal"><span class="pre">deepsearch.indexes.RelatedSearchIndex</span></tt></a>, <a class="reference internal" href="#deepsearch.indexes.InheritedFieldsSearchIndex" title="deepsearch.indexes.InheritedFieldsSearchIndex"><tt class="xref py py-class docutils literal"><span class="pre">deepsearch.indexes.InheritedFieldsSearchIndex</span></tt></a></p>
+<p>Recommended to use to combine features of <tt class="docutils literal"><span class="pre">RelatedSearchIndex</span></tt>
+and <tt class="docutils literal"><span class="pre">InheritedFieldsSearchIndex</span></tt>.</p>
+</dd></dl>
+
+<div class="section" id="subtree-wrappers">
+<h2>Subtree wrappers<a class="headerlink" href="#subtree-wrappers" title="Permalink to this headline">¶</a></h2>
+<p>Subtree wrappers are used to mark nodes in the <tt class="docutils literal"><span class="pre">includes</span></tt> tree for
+extended or custom behavior.</p>
+<dl class="class">
+<dt id="deepsearch.indexes.SubtreeWrapper">
+<em class="property">class </em><tt class="descclassname">deepsearch.indexes.</tt><tt class="descname">SubtreeWrapper</tt><a class="headerlink" href="#deepsearch.indexes.SubtreeWrapper" title="Permalink to this definition">¶</a></dt>
+<dd><p>May be used to customize <tt class="docutils literal"><span class="pre">RelatedSearchIndex</span></tt>
+<tt class="docutils literal"><span class="pre">Meta</span></tt> option <tt class="docutils literal"><span class="pre">includes</span></tt>.</p>
+<p>Example usage:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">MyModelIndex</span><span class="p">(</span><span class="n">DeepSearchIndex</span><span class="p">,</span> <span class="n">Indexable</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">MyModel</span>
+        <span class="n">includes</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;some_attr&#39;</span><span class="p">:</span> <span class="n">SubtreeWrapper</span><span class="p">({</span>  <span class="c"># not really needed here</span>
+                <span class="s">&#39;other_attr&#39;</span><span class="p">:</span> <span class="p">{},</span>
+                <span class="s">&#39;another_attr&#39;</span><span class="p">:</span> <span class="p">{},</span>
+            <span class="p">}),</span>
+            <span class="s">&#39;some_attr&#39;</span><span class="p">:</span> <span class="n">SubtreeWrapper</span><span class="p">({},</span> <span class="n">accessor_class</span><span class="o">=</span><span class="n">MyCustomAccessor</span><span class="p">),</span>
+        <span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="deepsearch.indexes.Recursive">
+<em class="property">class </em><tt class="descclassname">deepsearch.indexes.</tt><tt class="descname">Recursive</tt><a class="headerlink" href="#deepsearch.indexes.Recursive" title="Permalink to this definition">¶</a></dt>
+<dd><p>When traversing accessor path also include objects by following recursive
+relations (recursive field is specified with parameter <tt class="docutils literal"><span class="pre">on</span></tt>).</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><tt class="docutils literal"><span class="pre">Recursive</span></tt> usage is very limited. It only applies on the last
+level of attribute path and collects unicode values only.</p>
+</div>
+<p>Example usage:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">MyModelIndex</span><span class="p">(</span><span class="n">DeepSearchIndex</span><span class="p">,</span> <span class="n">Indexable</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">MyModel</span>
+        <span class="n">includes</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="c"># recursive values are included in the same index field</span>
+            <span class="s">&#39;some_attr&#39;</span><span class="p">:</span> <span class="n">Recursive</span><span class="p">({},</span> <span class="n">on</span><span class="o">=</span><span class="s">&#39;recursive_attr&#39;</span><span class="p">),</span>
+
+            <span class="c"># recursive values are included in a separate index field</span>
+            <span class="s">&#39;other_attr&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s">&#39;recursive_attr&#39;</span><span class="p">:</span> <span class="n">Recursive</span><span class="p">({},</span> <span class="n">on</span><span class="o">=</span><span class="s">&#39;recursive_attr&#39;</span><span class="p">),</span>
+            <span class="p">},</span>
+
+            <span class="c"># we can go deeper:</span>
+            <span class="s">&#39;another_attr&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s">&#39;recursive_attr&#39;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s">&#39;recursive_attr&#39;</span><span class="p">:</span> <span class="n">Recursive</span><span class="p">({},</span> <span class="n">on</span><span class="o">=</span><span class="s">&#39;recursive_attr&#39;</span><span class="p">),</span>
+                <span class="p">},</span>
+            <span class="p">},</span>
+        <span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="deepsearch.indexes.Unicode">
+<em class="property">class </em><tt class="descclassname">deepsearch.indexes.</tt><tt class="descname">Unicode</tt><a class="headerlink" href="#deepsearch.indexes.Unicode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Index the unicode representation object at the end of the path (does not
+create index fields for each model field).</p>
+</dd></dl>
+
+</div>
+<div class="section" id="other">
+<h2>Other<a class="headerlink" href="#other" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="deepsearch.indexes.dynamic_index">
+<tt class="descclassname">deepsearch.indexes.</tt><tt class="descname">dynamic_index</tt><big>(</big><em>model</em>, <em>base_indexes=(BasicSearchIndex</em>, <em>)</em><big>)</big><a class="headerlink" href="#deepsearch.indexes.dynamic_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dynamically creates an index class for the specified model. For example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">MyModelIndex</span> <span class="o">=</span> <span class="n">dynamic_index</span><span class="p">(</span><span class="n">MyModel</span><span class="p">,</span> <span class="p">(</span><span class="n">ModelSearchIndex</span><span class="p">,))</span>
+</pre></div>
+</div>
+<p>This is the same as:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">MyModelIndex</span><span class="p">(</span><span class="n">ModelSearchIndex</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">MyModel</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="deepsearch.indexes.LimitedContentTypeIndexMixin">
+<em class="property">class </em><tt class="descclassname">deepsearch.indexes.</tt><tt class="descname">LimitedContentTypeIndexMixin</tt><a class="headerlink" href="#deepsearch.indexes.LimitedContentTypeIndexMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Limits model queryset to exclude objects of derived types. Helps when
+you want to have non-overlapping indexes for base and derived models.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Indexes</a><ul>
+<li><a class="reference internal" href="#subtree-wrappers">Subtree wrappers</a></li>
+<li><a class="reference internal" href="#other">Other</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="example.html"
+                        title="previous chapter">How to use</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="models.html"
+                        title="next chapter">Models</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/indexes.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="models.html" title="Models"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="example.html" title="How to use"
+             >previous</a> |</li>
+        <li><a href="index.html">deepsearch 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Atviro Kodo Sprendimai.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

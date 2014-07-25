@@ -1,0 +1,202 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Management Commands &mdash; deepsearch 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="deepsearch 0.1 documentation" href="index.html" />
+    <link rel="next" title="Real-time indexing" href="signals.html" />
+    <link rel="prev" title="Models" href="models.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="signals.html" title="Real-time indexing"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="models.html" title="Models"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">deepsearch 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="management-commands">
+<h1>Management Commands<a class="headerlink" href="#management-commands" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="init-boosts">
+<h2><tt class="docutils literal"><span class="pre">init_boosts</span></tt><a class="headerlink" href="#init-boosts" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="deepsearch.management.commands.init_boosts.Command">
+<em class="property">class </em><tt class="descclassname">deepsearch.management.commands.init_boosts.</tt><tt class="descname">Command</tt><a class="headerlink" href="#deepsearch.management.commands.init_boosts.Command" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>Creates <a class="reference internal" href="models.html#deepsearch.models.FieldBoost" title="deepsearch.models.FieldBoost"><tt class="xref py py-class docutils literal"><span class="pre">FieldBoost</span></tt></a> objects for all
+registered index fields. If <a class="reference internal" href="models.html#deepsearch.models.FieldBoost" title="deepsearch.models.FieldBoost"><tt class="xref py py-class docutils literal"><span class="pre">FieldBoost</span></tt></a>
+exists, its original weight value remains unchanged. You should run this
+whenever you modify index schema.</p>
+<p><strong>Options</strong></p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">-r,</span> <span class="pre">--reset</span></tt></dt>
+<dd>Reset all existing and new boost values to 1.0</dd>
+<dt><tt class="docutils literal"><span class="pre">-n,</span> <span class="pre">--dryrun</span></tt></dt>
+<dd>Do everything without saving anything to database.</dd>
+</dl>
+<p><strong>Usage</strong></p>
+<p><tt class="docutils literal"><span class="pre">python</span> <span class="pre">manage.py</span> <span class="pre">init_boosts</span></tt></p>
+<p><tt class="docutils literal"><span class="pre">python</span> <span class="pre">manage.py</span> <span class="pre">init_boosts</span> <span class="pre">--dryrun</span></tt></p>
+<p><tt class="docutils literal"><span class="pre">python</span> <span class="pre">manage.py</span> <span class="pre">init_boosts</span> <span class="pre">--reset</span></tt></p>
+</div>
+<div class="section" id="resume-index">
+<span id="id1"></span><h2><tt class="docutils literal"><span class="pre">resume_index</span></tt><a class="headerlink" href="#resume-index" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="deepsearch.management.commands.resume_index.Command">
+<em class="property">class </em><tt class="descclassname">deepsearch.management.commands.resume_index.</tt><tt class="descname">Command</tt><a class="headerlink" href="#deepsearch.management.commands.resume_index.Command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">haystack.management.commands.update_index.Command</span></tt></p>
+</dd></dl>
+
+<p>Extends the <tt class="docutils literal"><span class="pre">update_index</span></tt> command of <em>Haystack</em>, but additionally provides
+a few extra options to slice the indexed queryset.</p>
+<p><strong>Options</strong></p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">--offset=N</span></tt></dt>
+<dd>Skip first N objects in the queryset.</dd>
+<dt><tt class="docutils literal"><span class="pre">--limit=N</span></tt></dt>
+<dd>Index up to N objects.</dd>
+<dt><tt class="docutils literal"><span class="pre">--fields=COMMA,SEPARATED,STRINGS</span></tt></dt>
+<dd>Update only those index fields which start with (or are equal to) any of
+the provided strings. This helps shorten reindexing times when you want to
+update the index with only few new index fields. Note that when indexing
+an object, its stored data is fetched from the index (this is called <cite>a
+document</cite>), the subset of fields is then prepared, the document is updated
+with new values and finally resubmitted to the index.</dd>
+</dl>
+<p><strong>Usage</strong></p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">python</span> <span class="pre">manage.py</span> <span class="pre">resume_index</span></tt></dt>
+<dd>Same as <tt class="docutils literal"><span class="pre">python</span> <span class="pre">manage.py</span> <span class="pre">update_index</span></tt></dd>
+</dl>
+<p><tt class="docutils literal"><span class="pre">python</span> <span class="pre">manage.py</span> <span class="pre">resume_index</span> <span class="pre">--limit=1000</span></tt></p>
+<p><tt class="docutils literal"><span class="pre">python</span> <span class="pre">manage.py</span> <span class="pre">resume_index</span> <span class="pre">--offset=1000</span> <span class="pre">--limit=1000</span></tt></p>
+<p><tt class="docutils literal"><span class="pre">python</span> <span class="pre">manage.py</span> <span class="pre">resume_index</span> <span class="pre">--offset=2000</span></tt></p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">python</span> <span class="pre">manage.py</span> <span class="pre">resume_index</span> <span class="pre">--fields=example__movie__actors</span></tt></dt>
+<dd>Will update index fields <tt class="docutils literal"><span class="pre">example__movie__actors__movie_set</span></tt>,
+<tt class="docutils literal"><span class="pre">example__movie__actors__name</span></tt>, etc. See also: <a class="reference internal" href="example.html"><em>How to use</em></a></dd>
+</dl>
+</div>
+<div class="section" id="clear-index-relations">
+<h2><tt class="docutils literal"><span class="pre">clear_index_relations</span></tt><a class="headerlink" href="#clear-index-relations" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="deepsearch.management.commands.clear_index_relations.Command">
+<em class="property">class </em><tt class="descclassname">deepsearch.management.commands.clear_index_relations.</tt><tt class="descname">Command</tt><a class="headerlink" href="#deepsearch.management.commands.clear_index_relations.Command" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>Clears all <a class="reference internal" href="models.html#deepsearch.models.IndexRelation" title="deepsearch.models.IndexRelation"><tt class="xref py py-class docutils literal"><span class="pre">IndexRelation</span></tt></a> objects. Does not
+prompt for user input.</p>
+<p><strong>Options</strong></p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">--clear-index</span></tt></dt>
+<dd>Also invoke <tt class="docutils literal"><span class="pre">clear_index</span></tt> command of Haystack. Accepts any of its
+parameters.</dd>
+</dl>
+<p><strong>Usage</strong></p>
+<p><tt class="docutils literal"><span class="pre">python</span> <span class="pre">manage.py</span> <span class="pre">clear_index_relations</span></tt></p>
+<p><tt class="docutils literal"><span class="pre">python</span> <span class="pre">manage.py</span> <span class="pre">clear_index_relations</span> <span class="pre">--clear-index</span> <span class="pre">--noinput</span></tt></p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Management Commands</a><ul>
+<li><a class="reference internal" href="#init-boosts"><tt class="docutils literal"><span class="pre">init_boosts</span></tt></a></li>
+<li><a class="reference internal" href="#resume-index"><tt class="docutils literal"><span class="pre">resume_index</span></tt></a></li>
+<li><a class="reference internal" href="#clear-index-relations"><tt class="docutils literal"><span class="pre">clear_index_relations</span></tt></a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="models.html"
+                        title="previous chapter">Models</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="signals.html"
+                        title="next chapter">Real-time indexing</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/commands.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="signals.html" title="Real-time indexing"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="models.html" title="Models"
+             >previous</a> |</li>
+        <li><a href="index.html">deepsearch 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Atviro Kodo Sprendimai.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
