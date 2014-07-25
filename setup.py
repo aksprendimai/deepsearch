@@ -9,7 +9,7 @@ setup(
     # url='http://pypi.python.org/pypi/TowelStuff/',
     license='LICENSE.txt',
     description='A Haystack extension used to index deep and nested model relationships.',
-    long_description=open('README.txt').read(),
+    long_description=open('README.rst').read(),
     install_requires=[
         "Python >= 2.6",
         "Django >= 1.4",
