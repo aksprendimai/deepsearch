@@ -1,5 +1,5 @@
-LICENSE.txt
-README.txt
+README.rst
+setup.cfg
 setup.py
 deepsearch/__init__.py
 deepsearch/admin.py
@@ -9,9 +9,3 @@ deepsearch/indexes.py
 deepsearch/models.py
 deepsearch/signals.py
 deepsearch/tasks.py
-docs/_build/html/_sources/commands.txt
-docs/_build/html/_sources/example.txt
-docs/_build/html/_sources/index.txt
-docs/_build/html/_sources/indexes.txt
-docs/_build/html/_sources/models.txt
-docs/_build/html/_sources/signals.txt

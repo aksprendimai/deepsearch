@@ -6,14 +6,14 @@ setup(
     author='Atviro Kodo Sprendimai',
     # author_email='info@aksprendimai.lt',  # TODO GZL
     packages=['deepsearch'],
-    # url='http://pypi.python.org/pypi/TowelStuff/',
+    url='https://github.com/aksprendimai/deepsearch',
     license='LICENSE.txt',
     description='A Haystack extension used to index deep and nested model relationships.',
-    long_description=open('README.rst').read(),
+    # long_description=open('README.rst').read(),
     install_requires=[
         "Python >= 2.6",
-        "Django >= 1.4",
+        "Django >= 1.4.8",
         "django-haystack >= 2.1.0",
-        "South.>= 0.8.1",
+        "South >= 0.8",
     ],
 )
